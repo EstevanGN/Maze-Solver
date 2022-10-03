@@ -1,7 +1,7 @@
 import tkinter as tk
 from PIL import Image, ImageTk
 from tkinter.filedialog import askopenfile
-import csv
+from read_maze import Laberinto
 
 root = tk.Tk()
 
@@ -9,8 +9,8 @@ root = tk.Tk()
 root.title('Maze Solver')
 
 # Size of canvas
-canvas = tk.Canvas(root, width=1280, height=720)
-canvas.grid(columnspan=1280, rowspan=720)
+canvas = tk.Canvas(root, width=962, height=601)
+canvas.grid(columnspan=10, rowspan=10)
 canvas.configure(bg='#171d2d')
 
 # Logo
@@ -25,7 +25,7 @@ logo_label.grid(column=0, row=0)
 title = tk.Label(root, text="Maze Solver", 
                  font="Raleway 32 bold", bg="#171d2d",
                  fg="white", justify=tk.LEFT)
-title.grid(column=1, row=0, padx=150)
+title.grid(column=1, row=0)
 # Names
 creators = tk.Label(root, 
                     text="Daniel Estevan Garcia Niño\nJaime Andres Macias Sanchez\nSantiago Tovar Mosquera", 
@@ -43,34 +43,84 @@ university_label = tk.Label(image=university)
 university_label.image = university
 university_label.grid(column=3, row=0)
 
-# To search files
-#def open_file():
-#    browse_text.set("Loading...")
-#    file = askopenfile(parent=root, mode='rb', title="Choose a file", filetypes=[("Pdf file", "*.pdf")])
-#    if file:
-#        read_pdf = PyPDF2.PdfFileReader(file)
-#        page = read_pdf.getPage(0)
-#        page_content = page.extractText()
-#
-#        #text box
-#        text_box = tk.Text(root, height=10, width=50, padx=15, pady=15)
-#        text_box.insert(1.0, page_content)
-#        text_box.tag_configure("center", justify="center")
-#        text_box.tag_add("center", 1.0, "end")
-#        text_box.grid(column=1, row=3)
-#
-#        browse_text.set("Browse maze")
+# To search files and possible to return maze
+''''Aca se lee el laberinto y se imprime en consola cuando
+damos click al boton Select maze. Es decir, lab es nuestro
+laberinto que se pasaría a las respectivas busquedas. Más 
+abajo están los botones para ejecutar cada una de las busquedas'''
+def open_file():
+   a = clicked.get()
+   lab=Laberinto(int(a))
+   lab.imprimirMatriz()
 
-# Browse button
-browse_text = tk.StringVar()
-browse_btn = tk.Button(root, textvariable=browse_text, 
-                       command=print("okokokok"), 
+# Drop list
+clicked = tk.IntVar()
+clicked.set(5)
+drop = tk.OptionMenu(root, clicked, 5, 10, 50, 100, 400)
+drop.grid(column=0, row=1)
+drop_text = tk.StringVar()
+drop_btn = tk.Button(root, textvariable=drop_text, 
+                       command=open_file,
                        font="Raleway 9", bg="white", 
-                       fg="black", height=1, width=8)
-browse_text.set("Browse maze")
-browse_btn.grid(column=0, row=2, pady=20)
+                       fg="black", height=2, width=12)
+drop_text.set("Select maze")
+drop_btn.grid(column=1, row=1)
 
-#canvas = tk.Canvas(root, width=600, height=250)
-#canvas.grid(columnspan=3)
+# Depth button
+depth_text = tk.StringVar()
+depth_btn = tk.Button(root, textvariable=depth_text, 
+                       command=print("ok depth"), # Esto se tiene que cambiar para que ejecute la función de búsqueda en profundidad
+                       font="Raleway 9", bg="white", 
+                       fg="black", height=2, width=12)
+depth_text.set("Depth")
+depth_btn.grid(column=0, row=2)
+
+# Width button
+width_text = tk.StringVar()
+width_btn = tk.Button(root, textvariable=width_text, 
+                       command=print("ok width"), # Esto se tiene que cambiar para que ejecute la función de búsqueda en anchura
+                       font="Raleway 9", bg="white", 
+                       fg="black", height=2, width=12)
+width_text.set("Width")
+width_btn.grid(column=1, row=2)
+
+# Iterative depth button
+iterative_depth_text = tk.StringVar()
+iterative_depth_btn = tk.Button(root, textvariable=iterative_depth_text, 
+                       command=print("ok iterative depth"), # Esto se tiene que cambiar para que ejecute la función de búsqueda en profundidad iterativa
+                       font="Raleway 9", bg="white", 
+                       fg="black", height=2, width=12)
+iterative_depth_text.set("Ite. Depth")
+iterative_depth_btn.grid(column=0, row=3)
+
+# Uniform cost button
+uniform_cost_text = tk.StringVar()
+uniform_cost_btn = tk.Button(root, textvariable=uniform_cost_text, 
+                       command=print("ok uniform cost"), # Esto se tiene que cambiar para que ejecute la función de búsqueda en costo uniforme
+                       font="Raleway 9", bg="white", 
+                       fg="black", height=2, width=12)
+uniform_cost_text.set("Unif. Cost")
+uniform_cost_btn.grid(column=1, row=3)
+
+# Greedy button
+greedy_text = tk.StringVar()
+greedy_btn = tk.Button(root, textvariable=greedy_text, 
+                       command=print("ok greedy"), # Esto se tiene que cambiar para que ejecute la función de búsqueda en greedy
+                       font="Raleway 9", bg="white", 
+                       fg="black", height=2, width=12)
+greedy_text.set("Greedy")
+greedy_btn.grid(column=0, row=4)
+
+# A* button
+aStar_text = tk.StringVar()
+aStar_btn = tk.Button(root, textvariable=aStar_text, 
+                       command=print("ok aStar"), # Esto se tiene que cambiar para que ejecute la función de búsqueda en A*
+                       font="Raleway 9", bg="white", 
+                       fg="black", height=2, width=12)
+aStar_text.set("A*")
+aStar_btn.grid(column=1, row=4)
+
+# Maze solved, print
+''''Imprimir el laberinto'''
 
 root.mainloop()
