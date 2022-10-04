@@ -57,9 +57,9 @@ def open_file(alg):
    mat=lab.rep
    d1 = Busqueda.GridProblem(initial=Busqueda.convertir(mat)[1],goal=Busqueda.convertir(mat)[2],obstacles=Busqueda.convertir(mat)[0])
    if(alg=="depth"):
-      path = Busqueda.path_states(Busqueda.breadth_first_search(d1))
+      path = Busqueda.path_states(Busqueda.depth_first_search(d1))
    elif(alg=="width"):
-      path = Busqueda.path_states(Busqueda.depth_limited_search(d1))
+      path = Busqueda.path_states(Busqueda.breadth_first_search(d1))
    elif(alg=="iterative depth"):
       path = Busqueda.path_states(Busqueda.depth_first_recursive_search (d1))
    elif(alg=="uniform cost"):         
