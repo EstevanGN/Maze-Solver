@@ -57,17 +57,23 @@ def open_file(alg):
    mat=lab.rep
    d1 = Busqueda.GridProblem(initial=Busqueda.convertir(mat)[1],goal=Busqueda.convertir(mat)[2],obstacles=Busqueda.convertir(mat)[0])
    if(alg=="depth"):
-      path = Busqueda.path_states(Busqueda.depth_first_search(d1))
+      path = Busqueda.depth_first_search(d1)[1]
+      Busqueda.report([Busqueda.depth_first_search1], [d1])
    elif(alg=="width"):
-      path = Busqueda.path_states(Busqueda.breadth_first_search(d1))
+      path = Busqueda.breadth_first_search(d1)[1]
+      Busqueda.report([Busqueda.breadth_first_search], [d1])
    elif(alg=="iterative depth"):
-      path = Busqueda.path_states(Busqueda.depth_first_recursive_search (d1))
+      path = Busqueda.breadth_first_search(d1)[1]
+      Busqueda.report([Busqueda.breadth_first_search], [d1])
    elif(alg=="uniform cost"):         
-      path = Busqueda.path_states(Busqueda.uniform_cost_search(d1))
+      path = Busqueda.uniform_cost_search(d1)[1]
+      Busqueda.report([Busqueda.uniform_cost_search], [d1])
    elif(alg=="greedy"):         
-      path = Busqueda.path_states(Busqueda.greedy_bfs(d1))
+      path = Busqueda.greedy_bfs(d1)[1]
+      Busqueda.report([Busqueda.greedy_bfs], [d1])
    elif(alg=="aStar"):         
-      path = Busqueda.path_states(Busqueda.astar_search(d1))   
+      path = Busqueda.astar_search(d1)[1]   
+      Busqueda.report([Busqueda.astar_search], [d1])
    ab = Busqueda.estados(path, mat)
    Busqueda.plt.rcParams["figure.figsize"] = [7.00, 3.50]
    Busqueda.plt.rcParams["figure.autolayout"] = True

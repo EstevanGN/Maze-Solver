@@ -94,7 +94,27 @@ class PriorityQueue:
 
     def __len__(self): return len(self.items)
 
+
 def best_first_search(problem, f):
+    "Search nodes with minimum f(node) value first."
+    camino=[]
+    node = Node(problem.initial)
+    frontier = PriorityQueue([node], key=f)
+    reached = {problem.initial: node}
+    while frontier:
+        node = frontier.pop()
+        camino.append(node.state)
+        if problem.is_goal(node.state):
+            return node, camino
+        for child in expand(problem, node):
+            s = child.state
+            if s not in reached or child.path_cost < reached[s].path_cost:
+                reached[s] = child
+                frontier.add(child)
+    return failure
+
+
+def best_first_search1(problem, f):
     "Search nodes with minimum f(node) value first."
     node = Node(problem.initial)
     frontier = PriorityQueue([node], key=f)
@@ -110,51 +130,36 @@ def best_first_search(problem, f):
                 frontier.add(child)
     return failure
 
-
-def best_first_tree_search(problem, f):
-    "A version of best_first_search without the `reached` table."
-    frontier = PriorityQueue([Node(problem.initial)], key=f)
-    while frontier:
-        node = frontier.pop()
-        if problem.is_goal(node.state):
-            return node
-        for child in expand(problem, node):
-            if not is_cycle(child):
-                frontier.add(child)
-    return failure
-
-
 def g(n): return n.path_cost
-
 
 def astar_search(problem, h=None):
     """Search nodes with minimum f(n) = g(n) + h(n)."""
     h = h or problem.h
     return best_first_search(problem, f=lambda n: g(n) + h(n))
 
-
-def astar_tree_search(problem, h=None):
-    """Search nodes with minimum f(n) = g(n) + h(n), with no `reached` table."""
+def astar_search1(problem, h=None):
+    """Search nodes with minimum f(n) = g(n) + h(n)."""
     h = h or problem.h
-    return best_first_tree_search(problem, f=lambda n: g(n) + h(n))
-
-
-def weighted_astar_search(problem, h=None, weight=1.4):
-    """Search nodes with minimum f(n) = g(n) + weight * h(n)."""
-    h = h or problem.h
-    return best_first_search(problem, f=lambda n: g(n) + weight * h(n))
-
-        
+    return best_first_search1(problem, f=lambda n: g(n) + h(n))
+   
 def greedy_bfs(problem, h=None):
     """Search nodes with minimum h(n)."""
     h = h or problem.h
     return best_first_search(problem, f=h)
+
+def greedy_bfs1(problem, h=None):
+    """Search nodes with minimum h(n)."""
+    h = h or problem.h
+    return best_first_search1(problem, f=h)
 
 
 def uniform_cost_search(problem):
     "Search nodes with minimum path cost first."
     return best_first_search(problem, f=g)
 
+def uniform_cost_search1(problem):
+    "Search nodes with minimum path cost first."
+    return best_first_search1(problem, f=g)
 
 def breadth_first_bfs(problem):
     "Search shallowest nodes in the search tree first; using best-first."
@@ -173,7 +178,29 @@ def is_cycle(node, k=30):
                 (ancestor.state == node.state or find_cycle(ancestor.parent, k - 1)))
     return find_cycle(node.parent, k)
 
+
 def breadth_first_search(problem):
+    "Search shallowest nodes in the search tree first."
+    camino=[]
+    node = Node(problem.initial)
+    if problem.is_goal(problem.initial):
+        return node
+    frontier = FIFOQueue([node])
+    reached = {problem.initial}
+    while frontier:
+        node = frontier.pop()
+        camino.append(node.state)
+        for child in expand(problem, node):
+            s = child.state
+            if problem.is_goal(s):
+                camino.append(s)
+                return child,camino
+            if s not in reached:
+                reached.add(s)
+                frontier.appendleft(child)
+    return failure
+
+def breadth_first_search1(problem):
     "Search shallowest nodes in the search tree first."
     node = Node(problem.initial)
     if problem.is_goal(problem.initial):
@@ -191,7 +218,25 @@ def breadth_first_search(problem):
                 frontier.appendleft(child)
     return failure
 
+
+
 def depth_first_search(problem):
+    "Search deepest nodes in the search tree first."
+    camino=[]
+    frontier = LIFOQueue([Node(problem.initial)])
+    result = failure
+    while frontier:
+        node = frontier.pop()
+        camino.append(node.state)
+        #print(node.state,end="")
+        if problem.is_goal(node.state):
+            return [node, camino]
+        elif not is_cycle(node):
+            for child in expand(problem, node):
+                frontier.append(child)
+    return result
+
+def depth_first_search1(problem):
     "Search deepest nodes in the search tree first."
     frontier = LIFOQueue([Node(problem.initial)])
     result = failure
@@ -199,6 +244,23 @@ def depth_first_search(problem):
         node = frontier.pop()
         if problem.is_goal(node.state):
             return node
+        elif not is_cycle(node):
+            for child in expand(problem, node):
+                frontier.append(child)
+    return result
+
+def depth_limited_search(problem, limit=10):
+    "Search deepest nodes in the search tree first."
+    camino=[]
+    frontier = LIFOQueue([Node(problem.initial)])
+    result = failure
+    while frontier:
+        node = frontier.pop()
+        camino.append(node.state)
+        if problem.is_goal(node.state):
+            return node, camino
+        elif len(node) >= limit:
+            result = cutoff
         elif not is_cycle(node):
             for child in expand(problem, node):
                 frontier.append(child)
@@ -320,3 +382,34 @@ def estados(path, inicial):
     d = con2(c[:], i)
     registro.append(d)
   return registro
+
+class CountCalls:
+    """Delegate all attribute gets to the object, and count them in ._counts"""
+    def __init__(self, obj):
+        self._object = obj
+        self._counts = Counter()
+        
+    def __getattr__(self, attr):
+        "Delegate to the original object, after incrementing a counter."
+        self._counts[attr] += 1
+        return getattr(self._object, attr)
+
+        
+def report(searchers, problems, verbose=True):
+    """Show summary statistics for each searcher (and on each problem unless verbose is false)."""
+    for searcher in searchers:
+        print(searcher.__name__ + ':')
+        total_counts = Counter()
+        for p in problems:
+            prob   = CountCalls(p)
+            soln   = searcher(prob)
+            counts = prob._counts; 
+            counts.update(actions=len(soln), cost=soln.path_cost)
+            total_counts += counts
+            if verbose: report_counts(counts, str(p)[:40])
+        report_counts(total_counts, 'TOTAL\n')
+        
+def report_counts(counts, name):
+    """Print one line of the counts report."""
+    print('{:9,d} nodes |{:9,d} goal |{:5.0f} cost |{:8,d} actions | {}'.format(
+          counts['result'], counts['is_goal'], counts['cost'], counts['actions'], name))
